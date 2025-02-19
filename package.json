@@ -1,0 +1,15 @@
+{
+  "name": "dev-tinder",
+  "version": "1.0.0",
+  "description": "It an node.js Project ",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/App.js",
+    "start": "node src/App.js"
+  },
+  "author": "Aliza Razi",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
