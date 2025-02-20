@@ -13,20 +13,35 @@ app.use("/test", (req, res) => {
 //----------------------------Handle Get Call seperately------------------------------------
 // get call ==> handle only get call to /user
 
-app.get("/user", (req, res) => {
-    res.send({ firstname: "John", lastname: "Doe" }); // Send response
-});
-// post call ==> handle only post call to /user
-app.post("/user", (req, res) => {
-    res.send("Saved data to DB");
-});
-//Delete call ==> handle only delete call to /user
+// app.get("/user", (req, res) => {
+//     res.send({ firstname: "John", lastname: "Doe" }); // Send response
+// });
+// // post call ==> handle only post call to /user
+// app.post("/user", (req, res) => {
+//     res.send("Saved data to DB");
+// });
+// //Delete call ==> handle only delete call to /user
 
-app.delete("/user", (req, res) => {
-    res.send("Deleted data from DB");
-});
+// app.delete("/user", (req, res) => {
+//     res.send("Deleted data from DB");
+// });
 
 //----------------------------Handle Post Call seperately------------------------------------
+
+
+//Error Handler
+
+app.use("/user", (req, res, next) => {
+    console.log('1st resonse');
+    // res.send('1st Response'); // Send respons
+    next();
+    res.send('1st Response'); // Send response
+}, (req, res) => {
+    console.log('2nd resonse');
+    res.send('2nd response'); // Send response
+});
+
+
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
