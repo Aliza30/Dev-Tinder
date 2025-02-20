@@ -31,17 +31,29 @@ app.use("/test", (req, res) => {
 
 //Error Handler
 
+// app.use("/user", (req, res, next) => {
+//     console.log('1st resonse');
+//     // res.send('1st Response'); // Send respons
+//     next();
+//     res.send('1st Response'); // Send response
+// }, (req, res) => {
+//     console.log('2nd resonse');
+//     res.send('2nd response'); // Send response
+// });
+//-----------2nd way to to router handler-------------------
 app.use("/user", (req, res, next) => {
     console.log('1st resonse');
-    // res.send('1st Response'); // Send respons
     next();
-    res.send('1st Response'); // Send response
-}, (req, res) => {
+});
+app.use("/user", (req, res) => {
     console.log('2nd resonse');
     res.send('2nd response'); // Send response
 });
 
+//---------------------------Middle Ware-------------------------------------
 
+
+//--------------------------------------------------------------------------------------------------------------------------------
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
