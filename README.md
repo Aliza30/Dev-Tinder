@@ -21,3 +21,7 @@ Common use cases include logging, authentication, error handling, and parsing re
 Middleware is applied using app.use() or as route-specific functions.
 
 // These are just lingos made by developers to make req n res working
+
+- user of middleware
+- why we need middleware?
+-

@@ -41,18 +41,30 @@ app.use("/test", (req, res) => {
 //     res.send('2nd response'); // Send response
 // });
 //-----------2nd way to to router handler-------------------
-app.use("/user", (req, res, next) => {
-    console.log('1st resonse');
-    next();
-});
-app.use("/user", (req, res) => {
-    console.log('2nd resonse');
-    res.send('2nd response'); // Send response
-});
+// app.use("/user", (req, res, next) => {
+//     console.log('1st resonse');
+//     next();
+// });
+// app.use("/user", (req, res) => {
+//     console.log('2nd resonse');
+//     res.send('2nd response'); // Send response
+// });
 
 //---------------------------Middle Ware-------------------------------------
 
+const OAuth = require('./Middleware/auth')
 
+app.use("/user/Admin", OAuth.AdminAuth, (req, res) => {
+    res.send('Admin Data from DB');
+});
+
+app.use("/user/Data", OAuth.UserAuth, (req, res) => {
+    res.send('User Data from DB');
+});
+
+app.use("/user/login", (req, res) => {
+    res.send('User Login');
+});
 //--------------------------------------------------------------------------------------------------------------------------------
 
 app.listen(3000, () => {
