@@ -1,72 +1,36 @@
 const express = require('express');
 const app = express();
-// app.use ==> Match all the HTTP methods api call to /
+const connectDB = require('./config/Database');
+const user = require("./Models/user");
 
-app.use("/test", (req, res) => {
-    console.log('Hello from /hello');
-    res.send('Running Test'); // Send response
-});
-// app.use("/", (req, res) => {
-//     res.send('Response from 3000'); // Send response
-// });
+app.post("/signup", async (req, res) => {
+    //dummy data for practacing
 
-//----------------------------Handle Get Call seperately------------------------------------
-// get call ==> handle only get call to /user
+    const newUser = new user({
+        firstName: "Akshai",
+        lastName: "saine",
+        email: "akshasaine@example.com",
+        password: "323232",
+    })
+    //create a inctacne of user model
 
-// app.get("/user", (req, res) => {
-//     res.send({ firstname: "John", lastname: "Doe" }); // Send response
-// });
-// // post call ==> handle only post call to /user
-// app.post("/user", (req, res) => {
-//     res.send("Saved data to DB");
-// });
-// //Delete call ==> handle only delete call to /user
+    await newUser.save();
+    try {
+        res.send("User registered successfully");
+        console.log(`check db`);
+    } catch (err) {
+        res.send(err.message)
+        console.error(err);
+    }
+})
 
-// app.delete("/user", (req, res) => {
-//     res.send("Deleted data from DB");
-// });
+connectDB()
+    .then(() => {
+        console.log('Database connected');
+        app.listen(3000, () => {
+            console.log('Server is running on port 3000');
+        });
 
-//----------------------------Handle Post Call seperately------------------------------------
-
-
-//Error Handler
-
-// app.use("/user", (req, res, next) => {
-//     console.log('1st resonse');
-//     // res.send('1st Response'); // Send respons
-//     next();
-//     res.send('1st Response'); // Send response
-// }, (req, res) => {
-//     console.log('2nd resonse');
-//     res.send('2nd response'); // Send response
-// });
-//-----------2nd way to to router handler-------------------
-// app.use("/user", (req, res, next) => {
-//     console.log('1st resonse');
-//     next();
-// });
-// app.use("/user", (req, res) => {
-//     console.log('2nd resonse');
-//     res.send('2nd response'); // Send response
-// });
-
-//---------------------------Middle Ware-------------------------------------
-
-const OAuth = require('./Middleware/auth')
-
-app.use("/user/Admin", OAuth.AdminAuth, (req, res) => {
-    res.send('Admin Data from DB');
-});
-
-app.use("/user/Data", OAuth.UserAuth, (req, res) => {
-    res.send('User Data from DB');
-});
-
-app.use("/user/login", (req, res) => {
-    res.send('User Login');
-});
-//--------------------------------------------------------------------------------------------------------------------------------
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
+    }).catch((err) => {
+        console.log('Error connecting to database');
+    });

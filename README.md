@@ -24,4 +24,8 @@ Middleware is applied using app.use() or as route-specific functions.
 
 - user of middleware
 - why we need middleware?
--
+
+## diffence between JSON and Javascript
+
+- JSON is a data format used for transferring data, with a strict syntax that ensures consistency across platforms.
+- JavaScript is a programming language used to build applications, capable of handling complex operations, including data manipulation, UI interaction, and more.
