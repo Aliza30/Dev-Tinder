@@ -3,15 +3,12 @@ const app = express();
 const connectDB = require('./config/Database');
 const user = require("./Models/user");
 
+
+app.use(express.json());
 app.post("/signup", async (req, res) => {
     //dummy data for practacing
-
-    const newUser = new user({
-        firstName: "Akshai",
-        lastName: "saine",
-        email: "akshasaine@example.com",
-        password: "323232",
-    })
+    // console.log(req.body);
+    const newUser = new user(req.body);
     //create a inctacne of user model
 
     await newUser.save();
@@ -22,6 +19,23 @@ app.post("/signup", async (req, res) => {
         res.send(err.message)
         console.error(err);
     }
+})
+// find user by email
+app.get("/byEmail", async (req, res) => {
+    const userEmail = req.body.email;
+    try {
+        const UserData = await user.findOne({ email: userEmail });
+        res.send(UserData);
+    } catch (err) {
+        res.send(err.message)
+        console.error(err);
+    }
+
+})
+
+
+app.get("/feed", (req, res) => {
+
 })
 
 connectDB()
