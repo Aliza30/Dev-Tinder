@@ -27,6 +27,11 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true,
+        validate(value) {
+            if (!validator.isStrongPassword(value)) {
+                throw new Error("Password is weak please enter a strong password");
+            }
+        }
     },
     age: {
         type: Number,
@@ -39,7 +44,11 @@ const userSchema = new Schema({
     },
     photoUrl: {
         type: String,
-        default: "https://images.app.goo.gl/3SGHoP5yS31CG94B9",
+        validator(value) {
+            if (!validator.isURL(value)) {
+                throw new Error("Invalid URL" + value);
+            }
+        }
     },
     gender: {
         type: String,

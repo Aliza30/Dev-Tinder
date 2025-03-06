@@ -24,7 +24,7 @@ app.post("/signup", async (req, res) => {
         // Save the user (this might fail if validation fails)
         await newUser.save();
 
-        res.status(201).json({ message: "User registered successfully" });
+        res.status(201).json("User registered successfully User saved in the database ");
         console.log(`User saved in the database`);
     } catch (err) {
         console.error(err); // Logs the full error in the terminal
