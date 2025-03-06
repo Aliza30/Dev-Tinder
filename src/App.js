@@ -6,8 +6,8 @@ const user = require("./Models/user");
 connectDB()
     .then(() => {
         console.log('Database connected');
-        app.listen(3000, () => {
-            console.log('Server is running on port 3000');
+        app.listen(7777, () => {
+            console.log('Server is running on port 7777');
         });
 
     }).catch((err) => {
@@ -105,20 +105,30 @@ app.delete("/delete", async (req, res) => {
         console.error(err);
     }
 });
+const mongoose = require("mongoose");
 
 app.patch("/update", async (req, res) => {
-    const userId = req.body.userID; // Ensure userID is provided
-    const updateData = req.body;
-
-    console.log(updateData, userId);
+    const userId = req.body.userId; // Fix the key name
+    const updateData = {
+        ...req.body
+    };
     try {
-        const UserData = await user.findByIdAndUpdate(userId, updateData, { returnDocument: "after" });
-        res.send("User updated successfully");
+        const updatedUser = await user.findByIdAndUpdate(
+            userId,
+            updateData,
+            { runValidators: true } // Ensure validation and return updated doc
+        );
+
+        if (!updatedUser) {
+            return res.status(404).send("User not found");
+        }
+
+        res.send({ message: "User updated successfully", user: updatedUser });
     } catch (err) {
-        res.status(400).send(err.message);
         console.error(err);
+        res.status(500).send(err.message);
     }
-})
+});
 
 
 
