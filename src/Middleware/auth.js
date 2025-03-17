@@ -1,23 +1,28 @@
-// Middleware/auth.js
-const AdminAuth = (req, res, next) => {  // Fixed parameter order
-    console.log('Admin Auth');
-    const password = 'xydz';
-    const token = password === 'xyz';
-    if (!token) {
-        res.status(401).send('Admin data Unauthorized');
-    } else {
+const jwt = require("jsonwebtoken");
+const User = require("../Models/user");
+
+
+const UserAuth = async (req, res, next) => {  // Fixed parameter order
+    try {
+        const { token } = req.cookies;
+        if (!token) {
+            return res.status(401).json({ error: "Invalid Token auth" });
+        }
+
+        const decodedmessage = await jwt.verify(token, "Namastedev@123");
+
+        const { _id } = decodedmessage; // Extract `_id` instead of `id`
+        const user = await User.findById(_id);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        req.user = user;
         next();
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
-const UserAuth = (req, res, next) => {  // Fixed parameter order
-    console.log('User Auth');
-    const password = 'xyz';
-    if (password === 'xyz') {
-        next();
-    } else {
-        res.status(401).send('User data Unauthorized');  // Added status code
-    }
-};
-
-module.exports = { AdminAuth, UserAuth };
+module.exports = { UserAuth };

@@ -1,146 +1,123 @@
 const express = require('express');
 const app = express();
 const connectDB = require('./config/Database');
-const user = require("./Models/user");
+const User = require("./Models/user"); // Changed to 'User' for clarity and consistency
+const validateSignUpdata = require('./Utils/Helper/passwordValidation');
+const bcrypt = require('bcrypt');
+const validator = require("validator");
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const { UserAuth } = require('./Middleware/auth');
+
+app.use(cookieParser());
 
 connectDB()
     .then(() => {
         console.log('Database connected');
-        app.listen(7777, () => {
-            console.log('Server is running on port 7777');
+        app.listen(3000, () => {
+            console.log('Server is running on port 3000');
         });
-
-    }).catch((err) => {
-        console.log('Error connecting to database');
+    })
+    .catch((err) => {
+        console.log('Error connecting to database', err);
     });
 
-
 app.use(express.json());
+
 app.post("/signup", async (req, res) => {
     try {
-        // Create an instance of user model
-        const newUser = new user(req.body);
+        // Validate sign-up data
+        validateSignUpdata(req);
 
-        // Save the user (this might fail if validation fails)
-        await newUser.save();
+        // Destructure required fields
+        const { firstName, lastName, email, password } = req.body;
 
-        res.status(201).json("User registered successfully User saved in the database ");
-        console.log(`User saved in the database`);
-    } catch (err) {
-        console.error(err); // Logs the full error in the terminal
-
-        if (err.name === "ValidationError") {
-            return res.status(400).json({ error: err.message });
+        // Ensure password exists
+        if (!password) {
+            return res.status(400).json({ error: "Password is required" });
         }
 
+        // Hash password securely
+        const passwordHash = await bcrypt.hash(password, 8);
+        console.log("Hashed Password:", passwordHash);
+
+        // Create new user
+        const newUser = new User({
+            firstName,
+            lastName,
+            email,
+            password: passwordHash
+        });
+
+        await newUser.save();
+        res.status(201).json({ message: "User registered successfully." });
+
+    } catch (error) {
+        console.error("Signup Error:", error);
+
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ error: error.message });
+        }
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
-// find user by email
-app.get("/byEmail", async (req, res) => {
-    const userEmail = req.body.email;
-    try {
-        const UserData = await user.findOne({ email: userEmail });
-        if (!UserData) {
-            res.status(401).send("User not found");
-        }
-        else {
-            res.send(UserData);
-        }
-    } catch (err) {
-        res.status(400).send(err.message)
-        console.error(err);
-    }
 
-})
-// all the Data 
-app.get("/all", async (req, res) => {
+// 🛠️ Login Route (Changed to POST)
+app.post("/login", async (req, res) => {
     try {
-        const UserData = await user.find({});
-        res.send(UserData);
-    } catch (err) {
-        res.status(400).send(err.message)
-        console.error(err);
-    }
+        const { email, password } = req.body;
 
-})
-app.get("/oneMail", async (req, res) => {
-    const userEmail = req.body.email;
-    try {
-        console.log(userEmail)
-        const UserData = await user.findOne({ email: userEmail });
-        if (!UserData) {
-            res.status(401).send("User not found");
+        // Find user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
         }
-        else {
-            res.send(UserData);
-        }
-        res.send(UserData);
-    } catch (err) {
-        res.status(400).send(err.message)
-        console.error(err);
-    }
-})
 
-app.get("/mailExist", async (req, res) => {
-    const mail = req.body.email;
-    try {
-        const UserData = await user.exists({ email: mail });
-        if (UserData) {
-            res.send("Email Exist");
+        // Compare passwords
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Incorrect password" });
         }
-        else {
-            res.send("Email not Exist");
-        }
-    }
-    catch (err) {
-        res.status(400).send(err.message)
-        console.error(err);
-    }
-})
+        if (isMatch) {
+            //token generation
+            const token = jwt.sign({ _id: user._id }, "Namastedev@123", { expiresIn: "1 days" });
+            console.log(token);
 
-app.delete("/delete", async (req, res) => {
-    const userId = req.body.userID;
-    try {
-        const UserData = await user.findOneAndDelete({ userId });
-        res.send("User Deleted");
-    }
-    catch (err) {
-        res.status(400).send(err.message)
-        console.error(err);
+            res.cookie('token', token, {
+                expires: new Date(Date.now() + 86400000)
+            });
+            res.json({ message: "User logged in successfully" });
+        } else {
+            res.status(401).json({ error: "Incorrect password" });
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
-app.patch("/update/:userId", async (req, res) => {
-    const userId = req.params?.userId; // Fix the key name
-    const updateData = {
-        ...req.body
-    };
+app.get("/profile", UserAuth, async (req, res) => {
     try {
-        const ALLOWED_UPDATE = ["age", "skills", "photoUrl",]
-        const isUpdateAllowed = Object.keys(updateData).every((k) => ALLOWED_UPDATE.includes(k));
-        if (!isUpdateAllowed) {
-            throw new Error("Invalid update fields");
+
+        const user = req.user;
+        // console.log(user);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
         }
 
-        const updatedUser = await user.findByIdAndUpdate(
-            userId,
-            updateData,
-            { runValidators: true } // Ensure validation and return updated doc
-        );
-
-        if (!updatedUser) {
-            return res.status(404).send("User not found");
-        }
-
-        res.send({ message: "User updated successfully", user: updatedUser });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err.message);
+        res.send(user);
+        //     res.send("Reading cookies");
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
-
-
+app.get("/connectCheck", UserAuth, async (req, res) => {
+    console.log("User is connected");
+    res.send("User is connected");
+});
 
 
