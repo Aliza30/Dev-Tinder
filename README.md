@@ -29,3 +29,55 @@ Middleware is applied using app.use() or as route-specific functions.
 
 - JSON is a data format used for transferring data, with a strict syntax that ensures consistency across platforms.
 - JavaScript is a programming language used to build applications, capable of handling complex operations, including data manipulation, UI interaction, and more.
+
+## Mongoose Schema Methods
+
+Mongoose schema methods allow adding custom functions to schema instances. These methods help perform operations like password validation or token generation.
+
+Example:
+
+js
+Copy
+Edit
+userSchema.methods.getJwt = function () {
+return jwt.sign({ \_id: this.\_id }, "SecretKey", { expiresIn: "1d" });
+};
+Here, getJwt() is a method attached to the schema that generates a JWT token for a user.
+
+## Cookies
+
+Cookies are small pieces of data stored in the browser, used for session management, authentication, and tracking user activity.
+
+Setting a Cookie in Express:
+
+js
+Copy
+Edit
+res.cookie('token', token, { httpOnly: true, expires: new Date(Date.now() + 86400000) });
+httpOnly: true → Prevents client-side JavaScript from accessing the cookie.
+expires → Sets an expiration time (e.g., 1 day).
+
+## Token
+
+A token is a string used to verify a user's identity and maintain sessions without storing sensitive data on the client side. It is often used in authentication mechanisms to ensure secure communication.
+
+## JSON Web Token (JWT)
+
+JWT is a compact, secure way to transmit authentication data between parties as a JSON object. It consists of:
+
+Header → Contains the algorithm & token type
+Payload → Holds user data
+Signature → Encrypts and verifies the token
+Generating a JWT Token:
+
+js
+Copy
+Edit
+const token = jwt.sign({ \_id: user.\_id }, "SecretKey", { expiresIn: "1d" });
+Verifying a JWT Token:
+
+js
+Copy
+Edit
+const decoded = jwt.verify(token, "SecretKey");
+JWT is commonly used in stateless authentication to secure APIs.
