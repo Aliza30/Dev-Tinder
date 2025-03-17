@@ -4,9 +4,7 @@ const connectDB = require('./config/Database');
 const User = require("./Models/user"); // Changed to 'User' for clarity and consistency
 const validateSignUpdata = require('./Utils/Helper/passwordValidation');
 const bcrypt = require('bcrypt');
-const validator = require("validator");
 const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
 const { UserAuth } = require('./Middleware/auth');
 
 app.use(cookieParser());
@@ -74,14 +72,13 @@ app.post("/login", async (req, res) => {
         }
 
         // Compare passwords
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = user.passwordValide(password);
         if (!isMatch) {
             return res.status(401).json({ error: "Incorrect password" });
         }
         if (isMatch) {
-            //token generation
-            const token = jwt.sign({ _id: user._id }, "Namastedev@123", { expiresIn: "1 days" });
-            console.log(token);
+            const token = user.getJwt();
+            console.log("Generated Token:", token);
 
             res.cookie('token', token, {
                 expires: new Date(Date.now() + 86400000)
