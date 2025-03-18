@@ -34,6 +34,15 @@ const userSchema = new Schema({
             }
         }
     },
+    about: {
+        type: String,
+        validate(value) {
+            if (value.length > 200) {
+                throw new Error("About can not be more than 200 characters");
+            }
+        },
+        default: "Hi i am new to the platform"
+    },
     age: {
         type: Number,
         min: 18,
@@ -53,10 +62,9 @@ const userSchema = new Schema({
     },
     gender: {
         type: String,
-        validate(value) {
-            if (!["male", "female", "others"].includes(value)) {
-                throw new Error("gender dosent exisit");
-            }
+        enum: {
+            values: ["male", "female", "others"],
+            message: "{VALUE} is not supported"
         }
     },
     skills: {
@@ -64,6 +72,14 @@ const userSchema = new Schema({
         validate(value) {
             if (value.length > 20) {
                 throw new Error("Malasious Data")
+            }
+        }
+    },
+    sports: {
+        type: [String],
+        validate(value) {
+            if (value.length > 10) {
+                throw new Error("No sport can be added")
             }
         }
     }
