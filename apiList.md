@@ -16,13 +16,13 @@ PATCH/profile/password
 
 ---
 
-### Status~api:
+### Status~api: [db connection: `./Modules/conectionRequest.js` & api : `./Router/connection.js`]
 
     - interest
     - ignore
 
-POST/request/send/{interest}/:UserID
-POST/request/send/{ignore}/:UserID
+POST/request/send/:status/:UserID
+POST/request/send/:status/:UserID
 
 - Request Status:
   - accepted

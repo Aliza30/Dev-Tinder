@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const connectionRequestSchema = new mongoose.Schema({
-    formUserId: {
+    fromUserId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
