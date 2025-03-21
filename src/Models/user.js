@@ -17,6 +17,8 @@ const userSchema = new Schema({
     },
     email: {
         type: String,
+        index: true,
+        unique: true,
         required: true,
         unique: true,
         validate(value) {

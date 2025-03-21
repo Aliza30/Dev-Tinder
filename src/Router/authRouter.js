@@ -2,7 +2,7 @@
 const express = require('express');
 const authRouter = express.Router();
 const User = require("../Models/user"); // Changed to 'User' for clarity and consistency
-const validateSignUpdata = require('../Utils/Helper/passwordValidation');
+const { validateSignUpdata } = require("../Utils/Helper/passwordValidation");
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 
@@ -14,10 +14,8 @@ authRouter.post("/signup", async (req, res) => {
     try {
         // Validate sign-up data
         validateSignUpdata(req);
-
         // Destructure required fields
         const { firstName, lastName, email, password } = req.body;
-
         // Ensure password exists
         if (!password) {
             return res.status(400).json({ error: "Password is required" });
