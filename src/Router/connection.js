@@ -60,5 +60,36 @@ router.post("/request/send/:status/:toUserId", UserAuth, async (req, res) => {
 });
 
 
+router.post("/request/review/:status/:requestId", UserAuth, async (req, res) => {
+    try {
 
+        const loggesInUser = req.user;
+
+        const { status, requestId } = req.params;
+        const allowedStatus = ["accepted", "rejected"];
+        if (!allowedStatus.includes(status)) {
+            return res.status(400).json({ message: "Invalid status", status: status });
+        }
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id: requestId,
+            toUserId: loggesInUser._id,
+            status: "interested"
+        });
+
+        if (!connectionRequest) {
+            return res.status(404).json({ message: "connection request not found", status: status });
+        }
+
+        connectionRequest.status = status;
+        connectionRequest.save();
+        res.status(200).json({ message: "connection request has been : " + status });
+    }
+
+    //67dd34fede72ff146e5400fa  
+    catch (e) {
+        console.error("Error:", e); // Logs error to console
+        res.status(400).json({ error: e.message });
+    }
+
+});
 module.exports = router;

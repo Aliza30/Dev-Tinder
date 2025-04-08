@@ -6,10 +6,12 @@ const cookieParser = require('cookie-parser');
 const authRouter = require('./Router/authRouter');
 const profileRouter = require('./Router/profile');
 const connectionRouter = require('./Router/connection');
+const userConnect = require('./Router/userRouter')
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", connectionRouter);
+app.use("/", userConnect);
 
 app.use(cookieParser());
 
