@@ -6,7 +6,7 @@ const { UserAuth } = require('../Middleware/auth');
 const connectionRequest = require('../Models/connectionRequest');
 const user = require('../Models/user');
 
-const USER_SAFE_DATA = ["id", "firstName", "lastName", "photoUrl", "age"];
+const USER_SAFE_DATA = ["id", "firstName", "lastName", "photoUrl", "age", "about"];
 userRouter.get('/user/request', UserAuth, async (req, res) => {
     try {
         const loggedInUser = req.user;
@@ -79,7 +79,7 @@ userRouter.get('/feed', UserAuth, async (req, res) => {
                 { _id: { $nin: Array.from(hideUserFromFeed) } },
                 { _id: { $ne: loggedInUser._id } }
             ]
-        }).select(USER_SAFE_DATA).skip(skip).limit(limit);
+        }).select('age gender about').select(USER_SAFE_DATA).skip(skip).limit(limit);
         res.json(users)
 
     } catch (error) {
