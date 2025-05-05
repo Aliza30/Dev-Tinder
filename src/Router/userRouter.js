@@ -6,7 +6,7 @@ const { UserAuth } = require('../Middleware/auth');
 const connectionRequest = require('../Models/connectionRequest');
 const user = require('../Models/user');
 
-const USER_SAFE_DATA = ["id", "firstName", "lastName", "photoUrl", "age", "about"];
+const USER_SAFE_DATA = ["id", "firstName", "lastName", "photoUrl", "age", "about", "gender"];
 userRouter.get('/user/request', UserAuth, async (req, res) => {
     try {
         const loggedInUser = req.user;
