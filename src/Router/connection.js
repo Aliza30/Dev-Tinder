@@ -12,7 +12,7 @@ router.post("/request/send/:status/:toUserId", UserAuth, async (req, res) => {
         const toUserId = req.params.toUserId;
         const status = req.params.status;
         // status check
-        const allowedStatus = ["interested", "ignore"];
+        const allowedStatus = ["interested", "ignored"];
         if (!allowedStatus.includes(status)) {
             return res.status(400).json({ message: "Invalid status", status: status });
         }

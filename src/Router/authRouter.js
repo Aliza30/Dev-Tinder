@@ -6,9 +6,9 @@ const { validateSignUpdata } = require("../Utils/Helper/passwordValidation");
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 
-authRouter.use(cookieParser());
-authRouter.use(express.json());  // ✅ This enables JSON parsing
 
+authRouter.use(cookieParser());
+authRouter.use(express.json()); 
 
 authRouter.post("/signup", async (req, res) => {
     try {
@@ -32,9 +32,17 @@ authRouter.post("/signup", async (req, res) => {
             email,
             password: passwordHash
         });
+        const savedUser = await newUser.save();
+        const token = savedUser.getJwt();
+        console.log("Generated Token:", token);
 
+        // Set token in cookies
+        res.cookie('token', token, {
+            expires: new Date(Date.now() + 86400000), // 1 day expiration
+            httpOnly: true // Secure cookie
+        });
         await newUser.save();
-        res.status(201).json({ message: "User registered successfully." });
+        res.status(201).json({ message: "User registered successfully.", data: savedUser });
 
     } catch (error) {
         console.error("Signup Error:", error);
@@ -84,5 +92,7 @@ authRouter.post("/logout", async (req, res) => {
             expires: new Date(Date.now())
         })
         .send("User logged out successfully");
-})// chain the code 
+})
+
+
 module.exports = authRouter;
